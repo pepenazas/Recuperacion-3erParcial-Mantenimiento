@@ -1,0 +1,338 @@
+```html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperación del Tercer Parcial de Mantenimiento y Redes de Cómputo</title>
+    <style>
+        :root {
+            --primary: #004085;
+            --primary-light: #0056b3;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --bg: #f4f6f9;
+            --card: #ffffff;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 90vh;
+        }
+        .card {
+            background: var(--card);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+            width: 100%;
+            max-width: 680px;
+            box-sizing: border-box;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        h1 { color: var(--primary); font-size: 1.45em; margin: 0 0 5px 0; }
+        .subtitle { color: #666; font-size: 0.95em; margin: 0; }
+        label { display: block; margin-top: 12px; font-weight: bold; color: #333; }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0 15px 0;
+            border: 2px solid #ced4da;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 15px;
+        }
+        input[type="text"]:focus {
+            border-color: var(--primary-light);
+            outline: none;
+        }
+        button {
+            background-color: var(--primary);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 10px;
+            transition: 0.2s;
+        }
+        button:hover { background-color: var(--primary-light); }
+        .option-btn {
+            background-color: #f8f9fa;
+            color: #333;
+            border: 2px solid #dee2e6;
+            text-align: left;
+            margin-bottom: 10px;
+            font-weight: normal;
+        }
+        .option-btn:hover { background-color: #e9ecef; border-color: #ced4da; }
+        .feedback {
+            padding: 14px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-size: 0.95em;
+            line-height: 1.4;
+        }
+        .feedback.correct { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .feedback.incorrect { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .hidden { display: none; }
+        .progress { text-align: right; color: #6c757d; font-size: 0.85em; font-weight: bold; margin-bottom: 10px; }
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.85em;
+        }
+        .badge-warning { background-color: var(--warning); color: #212529; }
+        .badge-success { background-color: var(--success); color: white; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 0.9em;
+        }
+        table, th, td { border: 1px solid #dee2e6; }
+        th, td { padding: 10px; text-align: center; }
+        th { background-color: #e9ecef; color: #495057; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="header">
+            <h1>COBAED Plantel 08 Nazas</h1>
+            <p class="subtitle">Recuperación del Tercer Parcial de Mantenimiento y Redes de Cómputo</p>
+        </div>
+
+        <!-- PANTALLA 1: REGISTRO Y DETECCIÓN -->
+        <div id="start-screen">
+            <label for="student-name">Nombre Completo del Alumno:</label>
+            <input type="text" id="student-name" placeholder="Ej. Carlos Ruiz Hernández">
+
+            <label for="student-grade">Grado y Grupo:</label>
+            <input type="text" id="student-grade" placeholder="Ej. 6to A / 6to B">
+
+            <button onclick="checkAndStartExam()">Comenzar Examen</button>
+        </div>
+
+        <!-- PANTALLA 2: EVALUACIÓN -->
+        <div id="quiz-screen" class="hidden">
+            <div class="progress" id="progress">Pregunta 1 de 20</div>
+            <h3 id="question-text" style="color: #212529; font-size: 1.1em; margin-top: 0;"></h3>
+            <div id="options-container"></div>
+            <div id="feedback" class="feedback hidden"></div>
+            <button id="next-btn" class="hidden" onclick="nextQuestion()">Siguiente Pregunta</button>
+        </div>
+
+        <!-- PANTALLA 3: RESULTADOS E HISTORIAL -->
+        <div id="result-screen" class="hidden">
+            <h2 style="text-align:center; color: var(--primary); margin-top: 0;">Resultados Oficiales</h2>
+            
+            <div id="attempt-badge-container" style="text-align: center; margin-bottom: 15px;"></div>
+
+            <div style="background: #e9ecef; padding: 15px; border-radius: 8px; font-size: 1em; line-height: 1.6;">
+                <b>Alumno:</b> <span id="res-name"></span><br>
+                <b>Grado y Grupo:</b> <span id="res-grade"></span><br>
+                <b>Calificación de este intento:</b> <span id="res-score" style="font-weight:bold; font-size: 1.1em;"></span>
+            </div>
+
+            <h3 style="margin-top: 20px; font-size: 1em; color: #495057;">Historial Completo de Intentos Registrados:</h3>
+            <div id="history-table-container"></div>
+
+            <button onclick="goHome()" style="background-color: #6c757d; margin-top: 15px;">Finalizar y Salir</button>
+        </div>
+    </div>
+
+    <script>
+        // Banco de 20 preguntas del 3er Parcial
+        const questions = [
+            { q: "¿Qué significan las siglas LAN dentro del contexto de las redes de cómputo?", options: ["Local Area Network (Red de Área Local)", "Long Access Node", "Logical Area Network", "Latency Alignment Network"], a: 0, f: "LAN se refiere a las redes de área local en espacios geográficos limitados como aulas u oficinas." },
+            { q: "Si un estudiante conecta su teléfono celular a su computadora del laboratorio mediante Bluetooth para pasar un archivo, ¿qué tipo de red por alcance geográfico está utilizando?", options: ["WAN", "MAN", "PAN", "LAN"], a: 2, f: "Las redes PAN (Personal Area Network) cubren el espacio de entorno personal del usuario (pocos metros)." },
+            { q: "¿Cuál es el tipo de red que interconecta múltiples redes LAN a lo largo de una ciudad o un municipio entero como Nazas?", options: ["PAN", "MAN", "WAN", "WLAN"], a: 1, f: "Una MAN (Metropolitan Area Network) cubre extensiones geográficas urbanas o municipales interconectando nodos locales." },
+            { q: "La red de Internet global que nos permite comunicarnos con servidores ubicados en otros continentes es el mejor ejemplo de una red de tipo LAN.", options: ["Verdadero", "Falso"], a: 1, f: "Falso. Internet es el ejemplo supremo de una red WAN (Wide Area Network)." },
+            { q: "¿Cuál de las siguientes opciones describe el alcance geográfico de una red de tipo WAN?", options: ["El espacio físico de una mesa de trabajo en el taller", "Un edificio de oficinas o el laboratorio de cómputo", "Una ciudad o zona urbana densamente poblada", "Diferentes ciudades, regiones, países o continentes interconectados"], a: 3, f: "Las redes WAN están diseñadas para la comunicación a grandes distancias continentales o mundiales." },
+            { q: "¿Cuál es el conector estándar internacional utilizado para finalizar los cables de red de par trenzado (UTP) en las conexiones de una red LAN?", options: ["Conector RJ45", "Conector USB Tipo C", "Conector RJ11", "Conector Coaxial BNC"], a: 0, f: "El conector RJ45 es el componente estándar de hardware utilizado para terminar los cables UTP." },
+            { q: "¿Cuál es el primer color (Pin 1) que se debe acomodar de izquierda a derecha al alinear los hilos bajo el estándar internacional T568B?", options: ["Blanco-Naranja", "Blanco-Verde", "Naranja", "Verde"], a: 0, f: "El estándar T568B inicia estrictamente con el hilo Blanco-Naranja en el Pin 1." },
+            { q: "¿Cómo se llama la herramienta mecánica utilizada para ejercer presión y fijar firmemente las cuchillas doradas del conector RJ45 sobre los hilos de cobre del cable UTP?", options: ["Pinza pelacables automática", "Pinza crimpadora (o ponchadora de red)", "Cautín para soldadura", "Destornillador de precisión"], a: 1, f: "La pinza crimpadora aloja el conector RJ45 y empuja los pines metálicos para asegurar los conductores de cobre." },
+            { q: "¿Cuál es el orden cromático completo y correcto que deben tener los 8 hilos internos del cable bajo el estándar T568B antes de introducirlo al conector?", options: ["Blanco-Naranja, Naranja, Blanco-Verde, Azul, Blanco-Azul, Verde, Blanco-Marrón, Marrón", "Blanco-Verde, Verde, Blanco-Naranja, Azul, Blanco-Azul, Naranja, Blanco-Marrón, Marrón", "Blanco-Naranja, Naranja, Blanco-Azul, Azul, Blanco-Verde, Verde, Blanco-Marrón, Marrón", "Marrón, Blanco-Marrón, Verde, Blanco-Azul, Azul, Blanco-Verde, Naranja, Blanco-Naranja"], a: 0, f: "Esta es la combinación internacional oficial del estándar T568B." },
+            { q: "En la estructura de la topología en Estrella, si el cable de un solo nodo se rompe, toda la red restante se cae e interrumpe de inmediato.", options: ["Verdadero", "Falso"], a: 1, f: "Falso. En la Estrella, si un cable individual falla, solo ese nodo pierde conexión; los demás siguen operando." },
+            { q: "¿Qué topología utiliza un único canal de comunicación central (llamado troncal o backbone) al cual se conectan todos los equipos de la red?", options: ["Topología en Estrella", "Topología en Anillo", "Topología en Malla", "Topología en Bus"], a: 3, f: "La topología en Bus comparte un solo medio físico central con terminadores en los extremos." },
+            { q: "Al conectar ambos extremos de un cable directo (T568B) armado a un Tester de red, ¿qué comportamiento de las luces LED indica continuidad perfecta?", options: ["Las luces de ambos módulos se encienden de forma aleatoria", "Las luces de ambos módulos se encienden en una secuencia numérica idéntica y ordenada del 1 al 8", "Solamente se encienden las luces del Pin 1 y del Pin 8", "Todas las luces del probador se quedan apagadas"], a: 1, f: "En un cable directo, el Tester refleja un encendido secuencial y coordinado del 1 al 8 en ambos lados." },
+            { q: "¿En qué escenario técnico es necesario estructurar y utilizar un cable de red de tipo 'cruzado' (Crossover)?", options: ["Para enlazar de forma directa dos computadoras entre sí sin usar un Switch", "Para conectar una estación de trabajo a un nodo de pared", "Para canalizar la señal del módem a un teléfono analógico", "Para alimentar de corriente eléctrica un Switch"], a: 0, f: "El cable cruzado se diseña para conectar terminales del mismo tipo (PC a PC) sin un switch intermedio." },
+            { q: "Para armar un cable de tipo cruzado de manera manual, ¿qué combinación de estándares internacionales se debe ponchar en sus extremos?", options: ["Estándar T568A en un extremo y estándar T568B en el otro extremo", "Estándar T568B en ambos extremos del cable", "Estándar T568A en ambos extremos del cable", "Cualquier orden libre sin repetir colores"], a: 0, f: "El cruce físico de señales de transmisión y recepción se logra combinando T568A en una punta y T568B en la otra." },
+            { q: "Si al probar nuestro cable en el Tester, la secuencia de luces en el módulo remoto se salta o prende desordenada, el cable aprobó la prueba de calidad.", options: ["Verdadero", "Falso"], a: 1, f: "Falso. Si las luces se saltan o prenden desordenadas, existen hilos mal alineados, abiertos o en cortocircuito." },
+            { q: "¿Qué significan exactamente las siglas UTP correspondientes al cable de red?", options: ["Universal Technical Protocol", "Unshielded Twisted Pair (Par Trenzado sin Blindaje)", "Unified Transmission Port", "Underlined Plastic Telephone"], a: 1, f: "UTP significa Par Trenzado sin Blindaje (Unshielded Twisted Pair)." },
+            { q: "Si tuvieras que realizar una instalación de cableado expuesta a la intemperie o a ruidos electromagnéticos severos, ¿qué medio físico es el adecuado?", options: ["Cable de red blindado de tipo STP o FTP", "Cable coaxial residencial de TV", "Cable telefónico bifilar de cobre", "Fibra óptica submarina"], a: 0, f: "Los cables STP o FTP incorporan blindaje metálico que disipa interferencias electromagnéticas externas." },
+            { q: "El trenzado helicoidal que tienen los pares de hilos de cobre dentro del cable de red sirve para reducir la diafonía y la interferencia electromagnética.", options: ["Verdadero", "Falso"], a: 0, f: "Verdadero. El trenzado cancela el ruido eléctrico e interferencias de señales adyacentes." },
+            { q: "¿Qué topología física ofrece el mayor nivel de redundancia y tolerancia a fallos debido a que cada dispositivo está conectado con múltiples enlaces redundantes?", options: ["Topología en Anillo", "Topología en Estrella", "Topología en Malla", "Topología en Bus"], a: 2, f: "La topología en Malla permite múltiples caminos lógicos para redirigir el tráfico si una línea falla." },
+            { q: "¿Cuál es la principal ventaja de utilizar Canva al momento de diseñar esquemas y diagramas de topologías de red?", options: ["Permite programar scripts automáticos de diagnóstico de red", "Facilita la representación gráfica y visual de las estructuras de red de forma colaborativa mediante iconos y plantillas limpias", "Aumenta el rendimiento de la tarjeta de red de la computadora", "Traduce automáticamente los comandos de CMD del inglés al español"], a: 1, f: "Canva permite estructurar entornos lógicos y topologías de forma visual, limpia y organizada." }
+        ];
+
+        let studentName = "";
+        let studentGrade = "";
+        let studentKey = "";
+        let currentIndex = 0;
+        let score = 0;
+
+        function getStorageKey(name, grade) {
+            return "EXAM3_" + name.toLowerCase().replace(/\s+/g, '') + "_" + grade.toLowerCase().replace(/\s+/g, '');
+        }
+
+        function checkAndStartExam() {
+            studentName = document.getElementById('student-name').value.trim();
+            studentGrade = document.getElementById('student-grade').value.trim();
+
+            if (!studentName || !studentGrade) {
+                alert("Por favor completa tu Nombre y Grado/Grupo antes de continuar.");
+                return;
+            }
+
+            studentKey = getStorageKey(studentName, studentGrade);
+            const history = JSON.parse(localStorage.getItem(studentKey)) || [];
+
+            if (history.length > 0) {
+                const proceed = confirm(
+                    `⚠️ AVISO AL ALUMNO Y DOCENTE:\n\nEl alumno ${studentName} (${studentGrade}) ya cuenta con ${history.length} intento(s) registrado(s) en este examen.\n\n¿Deseas registrar un intento adicional (Intento #${history.length + 1})?`
+                );
+                if (!proceed) return;
+            }
+
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            currentIndex = 0;
+            score = 0;
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = questions[currentIndex];
+            document.getElementById('progress').innerText = `Pregunta ${currentIndex + 1} de ${questions.length}`;
+            document.getElementById('question-text').innerText = q.q;
+            
+            const container = document.getElementById('options-container');
+            container.innerHTML = "";
+            document.getElementById('feedback').classList.add('hidden');
+            document.getElementById('next-btn').classList.add('hidden');
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn";
+                btn.innerText = opt;
+                btn.onclick = () => selectOption(idx);
+                container.appendChild(btn);
+            });
+        }
+
+        function selectOption(idx) {
+            const q = questions[currentIndex];
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach(btn => btn.disabled = true);
+            const feedback = document.getElementById('feedback');
+
+            if (idx === q.a) {
+                score++;
+                feedback.className = "feedback correct";
+                feedback.innerText = "¡Correcto! " + q.f;
+            } else {
+                feedback.className = "feedback incorrect";
+                feedback.innerText = "Incorrecto. " + q.f;
+            }
+            feedback.classList.remove('hidden');
+            document.getElementById('next-btn').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentIndex++;
+            if (currentIndex < questions.length) {
+                showQuestion();
+            } else {
+                finishExam();
+            }
+        }
+
+        function finishExam() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString() + " " + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            const percentage = Math.round((score / questions.length) * 100);
+
+            // Guardar intento en localStorage con clave EXAM3_
+            let history = JSON.parse(localStorage.getItem(studentKey)) || [];
+            const attemptNumber = history.length + 1;
+            
+            const record = {
+                attempt: attemptNumber,
+                date: dateStr,
+                score: score,
+                total: questions.length,
+                percentage: percentage
+            };
+            history.push(record);
+            localStorage.setItem(studentKey, JSON.stringify(history));
+
+            // Desplegar resultados
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+
+            document.getElementById('res-name').innerText = studentName;
+            document.getElementById('res-grade').innerText = studentGrade;
+            document.getElementById('res-score').innerText = `${score} / ${questions.length} (${percentage}%)`;
+
+            // Badge de intento
+            const badgeContainer = document.getElementById('attempt-badge-container');
+            if (attemptNumber === 1) {
+                badgeContainer.innerHTML = `<span class="badge badge-success">Primer Intento Oficial</span>`;
+            } else {
+                badgeContainer.innerHTML = `<span class="badge badge-warning">⚠️ Intento #${attemptNumber} (Reincidencia detectada)</span>`;
+            }
+
+            // Generar tabla de historial
+            let tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No. Intento</th>
+                            <th>Fecha y Hora</th>
+                            <th>Aciertos</th>
+                            <th>Calificación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            history.forEach(h => {
+                tableHTML += `
+                    <tr ${h.attempt === attemptNumber ? 'style="background:#f0fff4; font-weight:bold;"' : ''}>
+                        <td>Intento ${h.attempt}</td>
+                        <td>${h.date}</td>
+                        <td>${h.score} / ${h.total}</td>
+                        <td>${h.percentage}%</td>
+                    </tr>
+                `;
+            });
+            tableHTML += `</tbody></table>`;
+            document.getElementById('history-table-container').innerHTML = tableHTML;
+        }
+
+        function goHome() {
+            document.getElementById('student-name').value = "";
+            document.getElementById('student-grade').value = "";
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
+
+```
